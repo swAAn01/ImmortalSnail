@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <AssemblyName>ImmortalSnail</AssemblyName>
         <Description>Escape from an incredibly slow snail that instantly kills you upon contact.</Description>
-        <Version>0.2.0</Version>
+        <Version>0.3.0</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
@@ -29,6 +29,9 @@
       </Reference>
       <Reference Include="BepInEx">
         <HintPath>..\..\..\..\..\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\DevProfile\BepInEx\core\BepInEx.dll</HintPath>
+      </Reference>
+      <Reference Include="LethalConfig">
+        <HintPath>..\..\..\..\..\..\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\DevProfile\BepInEx\plugins\AinaVT-LethalConfig\LethalConfig\LethalConfig.dll</HintPath>
       </Reference>
       <Reference Include="LethalLib">
         <HintPath>..\..\..\..\..\..\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\DevProfile\BepInEx\plugins\Evaisa-LethalLib\LethalLib\LethalLib.dll</HintPath>

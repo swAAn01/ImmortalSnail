@@ -43,7 +43,7 @@ namespace ImmortalSnail
 
             if (player != null)
             {
-                if ((int) player.playerClientId == NetworkHandler.TargetPlayerClientId)
+                if ((int)player.playerClientId == NetworkHandler.TargetPlayerClientId)
                 {
                     player.KillPlayer(Vector3.zero, spawnBody: true, CauseOfDeath.Unknown);
                     refreshTarget();
