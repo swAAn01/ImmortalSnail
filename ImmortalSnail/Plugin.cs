@@ -23,6 +23,7 @@ namespace ImmortalSnail
         private ConfigEntry<float> configSize;
         private ConfigEntry<float> configSpeed;
         private ConfigEntry<int> configMaxSnails;
+        private ConfigEntry<int> configRarity;
 
         private void Awake()
         {
@@ -52,9 +53,17 @@ namespace ImmortalSnail
                 Max = 4
             });
 
+            configRarity = Config.Bind("General", "Rarity", 100, "Honestly not sure exactly how this works, but a higher \"Rarity\" will make the snail more likely to spawn.");
+            var raritySlider = new IntSliderConfigItem(configRarity, new IntSliderOptions
+            {
+                Min = 0,
+                Max = 100
+            });
+
             LethalConfigManager.AddConfigItem(sizeSlider);
             LethalConfigManager.AddConfigItem(speedSlider);
             LethalConfigManager.AddConfigItem(maxSnailsSlider);
+            LethalConfigManager.AddConfigItem(raritySlider);
 
             // loading snail from bundle
             string sAssemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -90,7 +99,7 @@ namespace ImmortalSnail
             Levels.LevelTypes levelFlags = Levels.LevelTypes.All;
             Enemies.SpawnType spawnType = Enemies.SpawnType.Default;
             LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(snail.enemyPrefab);
-            LethalLib.Modules.Enemies.RegisterEnemy(snail, 100, levelFlags, spawnType, null, null);           
+            LethalLib.Modules.Enemies.RegisterEnemy(snail, configRarity.Value, levelFlags, spawnType, null, null);           
 
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         }

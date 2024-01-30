@@ -1,18 +1,15 @@
-﻿using GameNetcodeStuff;
-using System;
-using Unity.Netcode;
-using UnityEngine;
+﻿using Unity.Netcode;
 
 namespace ImmortalSnail
 {
     class NetworkHandler : NetworkBehaviour
     {
         public static NetworkHandler Instance { get; private set; }
-        public static int TargetPlayerClientId { get; private set; }
+        public SnailAI localSnailAI { get; set; }
 
         public override void OnNetworkSpawn()
         {
-            TargetPlayerClientId = -1;
+            localSnailAI = null;
 
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
                 Instance?.gameObject.GetComponent<NetworkObject>().Despawn();
@@ -22,9 +19,19 @@ namespace ImmortalSnail
         }
 
         [ClientRpc]
-        public void SetTargetPlayerClientRpc(int playerId)
+        public void RefreshTargetClientRpc(ulong playerId)
         {
-            TargetPlayerClientId = playerId;
+            localSnailAI.SetMovingTowardsTargetPlayer(StartOfRound.Instance.allPlayerScripts[playerId]);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void RefreshTargetServerRpc()
+        {
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            {
+                localSnailAI.refreshTarget();
+                RefreshTargetClientRpc(localSnailAI.targetPlayer.playerClientId);
+            }
         }
     }
 }

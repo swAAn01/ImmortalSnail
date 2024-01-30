@@ -1,21 +1,14 @@
 ﻿using GameNetcodeStuff;
 using UnityEngine;
-using Unity.Netcode;
 
 namespace ImmortalSnail
 {
     class SnailAI : EnemyAI
     {
-        /*
-         * Here's what we want the snail to do
-         * 1. on start, target a player
-         * 2. move toward the player
-         * 3. if we touch the player, kill them and select a new target
-         */
 
         public override void Start()
         {
-            // configure script
+            // EnemyAI attributes
             AIIntervalTime = 0.2f;
             updatePositionThreshold = 0.4f;
             moveTowardsDestination = true;
@@ -24,13 +17,17 @@ namespace ImmortalSnail
             enemyHP = 1;
 
             base.Start();
-            refreshTarget();
+
+            // NetworkHandler setup
+            NetworkHandler.Instance.localSnailAI = this;
+            NetworkHandler.Instance.RefreshTargetServerRpc();
         }
 
         public override void OnCollideWithPlayer(Collider other)
         {
             if (!other.gameObject.GetComponent<PlayerControllerB>())
             {
+                Debug.LogWarning("Snail collided with a player, but player was null.");
                 return;
             }
 
@@ -41,21 +38,15 @@ namespace ImmortalSnail
 
             PlayerControllerB player = other.gameObject.GetComponent<PlayerControllerB>();
 
-            if (player != null)
+            if (player.playerClientId == targetPlayer.playerClientId)
             {
-                if ((int)player.playerClientId == NetworkHandler.TargetPlayerClientId)
-                {
-                    player.KillPlayer(Vector3.zero, spawnBody: true, CauseOfDeath.Unknown);
-                    refreshTarget();
-                }
+                player.KillPlayer(Vector3.zero, spawnBody: true, CauseOfDeath.Unknown);
+                NetworkHandler.Instance.RefreshTargetServerRpc();
             }
         }
 
         public void refreshTarget()
         {
-            if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer))
-                return;
-
             PlayerControllerB[] allPlayers = StartOfRound.Instance.allPlayerScripts;
 
             PlayerControllerB tempPlayer = null;
@@ -64,7 +55,7 @@ namespace ImmortalSnail
             // find nearest player
             for (int i = 0; i < allPlayers.Length; i++)
             {
-                if (allPlayers[i].isPlayerDead)
+                if (allPlayers[i].isPlayerDead || !allPlayers[i].isPlayerControlled)
                     continue;
 
                 float d2 = Vector3.Distance(this.transform.position, allPlayers[i].transform.position);
@@ -78,12 +69,11 @@ namespace ImmortalSnail
 
             if (tempPlayer == null)
             {
-                Debug.Log("Snail was unable to find a player to target.");
+                Debug.LogWarning("Snail was unable to find a player to target.");
                 return;
             }
 
             SetMovingTowardsTargetPlayer(tempPlayer);
-            NetworkHandler.Instance.SetTargetPlayerClientRpc((int) tempPlayer.playerClientId);
         }
     }
 }
