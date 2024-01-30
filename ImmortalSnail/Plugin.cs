@@ -7,7 +7,6 @@ using BepInEx.Configuration;
 using LethalConfig.ConfigItems;
 using LethalConfig.ConfigItems.Options;
 using LethalConfig;
-using RuntimeNetcodeRPCValidator;
 using UnityEngine.AI;
 
 namespace ImmortalSnail
@@ -17,7 +16,6 @@ namespace ImmortalSnail
 
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     [BepInDependency("ainavt.lc.lethalconfig")]
-    [BepInDependency(RuntimeNetcodeRPCValidator.MyPluginInfo.PLUGIN_GUID, RuntimeNetcodeRPCValidator.MyPluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
 
