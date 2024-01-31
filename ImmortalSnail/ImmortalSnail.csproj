@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <AssemblyName>ImmortalSnail</AssemblyName>
         <Description>Escape from an incredibly slow snail that instantly kills you upon contact.</Description>
-        <Version>0.4.0</Version>
+        <Version>0.4.1</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>

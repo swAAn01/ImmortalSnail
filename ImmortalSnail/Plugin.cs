@@ -4,26 +4,20 @@ using System.IO;
 using System.Reflection;
 using UnityEngine;
 using BepInEx.Configuration;
-using LethalConfig.ConfigItems;
-using LethalConfig.ConfigItems.Options;
-using LethalConfig;
 using UnityEngine.AI;
 
 namespace ImmortalSnail
 {
 
-    
-
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-    [BepInDependency("ainavt.lc.lethalconfig")]
     public class Plugin : BaseUnityPlugin
     {
 
         public static AssetBundle bundle;
-        private ConfigEntry<float> configSize;
-        private ConfigEntry<float> configSpeed;
-        private ConfigEntry<int> configMaxSnails;
-        private ConfigEntry<int> configRarity;
+        public static ConfigEntry<float> configSize;
+        public static ConfigEntry<float> configSpeed;
+        public static ConfigEntry<int> configMaxSnails;
+        public static ConfigEntry<int> configRarity;
 
         private void Awake()
         {
@@ -32,38 +26,13 @@ namespace ImmortalSnail
 
             // configuration setup
             configSize = Config.Bind("General", "Scale", 100.0f, "The scale of the snail. Defaults to 100.");
-            var sizeSlider = new FloatSliderConfigItem(configSize, new FloatSliderOptions
-            {
-                Min = 25f,
-                Max = 225f
-            });
-
             configSpeed = Config.Bind("General", "Speed", 0.5f, "The speed of the snail. Defaults to 0.5.");
-            var speedSlider = new FloatSliderConfigItem(configSpeed, new FloatSliderOptions
-            {
-                Min = 0.2f,
-                Max = 1.0f
-            });
-            
-
             configMaxSnails = Config.Bind("General", "Max Snails", 1, "The maximum number of snails that can spawn in a round. Defaults to 1.");
-            var maxSnailsSlider = new IntSliderConfigItem(configMaxSnails, new IntSliderOptions
-            {
-                Min = 0,
-                Max = 4
-            });
-
             configRarity = Config.Bind("General", "Rarity", 100, "Honestly not sure exactly how this works, but a higher \"Rarity\" will make the snail more likely to spawn.");
-            var raritySlider = new IntSliderConfigItem(configRarity, new IntSliderOptions
-            {
-                Min = 0,
-                Max = 100
-            });
 
-            LethalConfigManager.AddConfigItem(sizeSlider);
-            LethalConfigManager.AddConfigItem(speedSlider);
-            LethalConfigManager.AddConfigItem(maxSnailsSlider);
-            LethalConfigManager.AddConfigItem(raritySlider);
+            // check if using LethalConfig
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("ainavt.lc.lethalconfig"))
+                ConfigManager.setupLethalConfig();
 
             // loading snail from bundle
             string sAssemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -87,7 +56,6 @@ namespace ImmortalSnail
             snail.enemyPrefab.AddComponent<SnailAI>();
             snail.enemyPrefab.GetComponent<SnailAI>().enemyType = snail;
             snail.enemyPrefab.GetComponentInChildren<EnemyAICollisionDetect>().mainScript = snail.enemyPrefab.GetComponent<SnailAI>();
-            snail.enemyPrefab.AddComponent<NetworkHandler>();
 
             Logger.LogInfo("Applying User-Defined Configuration Settings");
             float scale = 25f * configSize.Value / 100f;

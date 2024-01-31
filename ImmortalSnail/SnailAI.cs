@@ -1,5 +1,6 @@
 ﻿using GameNetcodeStuff;
 using UnityEngine;
+using Unity.Netcode;
 
 namespace ImmortalSnail
 {
@@ -18,14 +19,21 @@ namespace ImmortalSnail
 
             base.Start();
 
-            // NetworkHandler setup
-            NetworkHandler.Instance.localSnailAI = this;
-            NetworkHandler.Instance.RefreshTargetServerRpc();
+            RefreshTargetServerRpc();
+        }
+
+        public override void Update()
+        {
+            base.Update();
+            if (targetPlayer.isPlayerDead || !targetPlayer.isPlayerControlled)
+                RefreshTargetServerRpc();
         }
 
         public override void OnCollideWithPlayer(Collider other)
         {
-            if (!other.gameObject.GetComponent<PlayerControllerB>())
+            PlayerControllerB player = other.gameObject.GetComponent<PlayerControllerB>();
+
+            if (player == null)
             {
                 Debug.LogWarning("Snail collided with a player, but player was null.");
                 return;
@@ -36,16 +44,12 @@ namespace ImmortalSnail
             if (stunNormalizedTimer >= 0f)
                 return;
 
-            PlayerControllerB player = other.gameObject.GetComponent<PlayerControllerB>();
-
             if (player.playerClientId == targetPlayer.playerClientId)
-            {
-                player.KillPlayer(Vector3.zero, spawnBody: true, CauseOfDeath.Unknown);
-                NetworkHandler.Instance.RefreshTargetServerRpc();
-            }
+                KillPlayerServerRpc(player.playerClientId);
         }
 
-        public void refreshTarget()
+        [ServerRpc(RequireOwnership = false)]
+        public void RefreshTargetServerRpc()
         {
             PlayerControllerB[] allPlayers = StartOfRound.Instance.allPlayerScripts;
 
@@ -75,13 +79,28 @@ namespace ImmortalSnail
 
             SetMovingTowardsTargetPlayer(tempPlayer);
             gameObject.GetComponentInChildren<ScanNodeProperties>().subText = "Current Target : " + tempPlayer.playerUsername;
+            RefreshTargetClientRpc(tempPlayer.playerClientId);
         }
 
-        public override void Update()
+        [ClientRpc]
+        public void RefreshTargetClientRpc(ulong playerId)
         {
-            base.Update();
-            if (targetPlayer.isPlayerDead || !targetPlayer.isPlayerControlled)
-                NetworkHandler.Instance.RefreshTargetServerRpc();
+            SetMovingTowardsTargetPlayer(StartOfRound.Instance.allPlayerScripts[playerId]);
+            gameObject.GetComponentInChildren<ScanNodeProperties>().subText = "Current Target: " + StartOfRound.Instance.allPlayerScripts[playerId].playerUsername;
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void KillPlayerServerRpc(ulong playerId)
+        {
+            StartOfRound.Instance.allPlayerScripts[playerId].KillPlayer(Vector3.up, spawnBody: true, CauseOfDeath.Unknown);
+            KillPlayerClientRpc(playerId);
+            RefreshTargetServerRpc();
+        }
+
+        [ClientRpc]
+        public void KillPlayerClientRpc(ulong playerId)
+        {
+            StartOfRound.Instance.allPlayerScripts[playerId].KillPlayer(Vector3.up, spawnBody: true, CauseOfDeath.Unknown);
         }
     }
 }
