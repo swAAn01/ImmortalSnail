@@ -22,6 +22,7 @@ namespace ImmortalSnail
         public void RefreshTargetClientRpc(ulong playerId)
         {
             localSnailAI.SetMovingTowardsTargetPlayer(StartOfRound.Instance.allPlayerScripts[playerId]);
+            localSnailAI.gameObject.GetComponentInChildren<ScanNodeProperties>().subText = "Current Target: " + localSnailAI.targetPlayer.playerUsername;
         }
 
         [ServerRpc(RequireOwnership = false)]

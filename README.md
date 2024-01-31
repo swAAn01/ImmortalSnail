@@ -7,6 +7,8 @@ If the snail touches a non-targeted player, that player will be unaffected.
 
 All players in a lobby must have the mod installed.
 
-As of version 0.3.0, there are now configuration options through LethalConfig! Use the sliders to determine the size, speed, and allowed number of snails. The host's settings will be used for the game, and a restart of the game client is required after changing settings.
+For now, LethalConfig is a required dependency. In the a future update, I will make this optional.
+
+Special thanks to grandmastersluggy for coming up with the idea for this mod, and to the amazing LC Modding Discord community, without whom this project wouldn't be possible.
 
 Feel free to reach out on Discord (bigswandawg) for bug reports or suggestions!

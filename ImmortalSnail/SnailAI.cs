@@ -74,6 +74,14 @@ namespace ImmortalSnail
             }
 
             SetMovingTowardsTargetPlayer(tempPlayer);
+            gameObject.GetComponentInChildren<ScanNodeProperties>().subText = "Current Target : " + tempPlayer.playerUsername;
+        }
+
+        public override void Update()
+        {
+            base.Update();
+            if (targetPlayer.isPlayerDead || !targetPlayer.isPlayerControlled)
+                NetworkHandler.Instance.RefreshTargetServerRpc();
         }
     }
 }
