@@ -5,6 +5,7 @@ using System.Reflection;
 using UnityEngine;
 using BepInEx.Configuration;
 using UnityEngine.AI;
+using System.Collections;
 
 namespace ImmortalSnail
 {
@@ -66,8 +67,47 @@ namespace ImmortalSnail
             Logger.LogInfo("Registering Snail as Enemy");
             Levels.LevelTypes levelFlags = Levels.LevelTypes.All;
             Enemies.SpawnType spawnType = Enemies.SpawnType.Default;
+
+            /*
+             * TODO terminal node is not working right now, so we'll just comment it out for now.
+             * the keywords are working, but it just says we need to scan the creature to get the data
+             * scanning the creature did not change this
+             * I think there's some setting I'm missing. must investigate.
+             * 
+            TerminalNode snailNode = ScriptableObject.CreateInstance<TerminalNode>();
+            snailNode.displayText = "The Immortal Snail\n\nDanger level: 50%\n\n" +
+                "When I first saw this thing I didn't know what to think. I mean, it's a snail. And it's HUGE. Not as big as some of the other things I've seen in here," +
+                " but still enough to take a guy by surprise. It's resilient, though. Once it locks on to you, it won't give up until you're gone one way or another." +
+                " We've tried everything to stop it too, but nothing seems to penetrate its shell.";
+            snailNode.clearPreviousText = true;
+            snailNode.maxCharactersToType = 500;
+            snailNode.creatureName = "The Immortal Snail";
+            snailNode.creatureFileID = 1738;
+
+            CompatibleNoun[] snailWords = new CompatibleNoun[11];
+            for (int i = 0; i < snailWords.Length; i++)
+            {
+                snailWords[i] = new CompatibleNoun();
+                snailWords[i].result = snailNode;
+            }
+            
+            snailWords[0].noun = TerminalUtils.CreateTerminalKeyword("snail", false);
+            snailWords[1].noun = TerminalUtils.CreateTerminalKeyword("Snail", false);
+            snailWords[2].noun = TerminalUtils.CreateTerminalKeyword("immortalsnail", false);
+            snailWords[3].noun = TerminalUtils.CreateTerminalKeyword("immortal snail", false);
+            snailWords[4].noun = TerminalUtils.CreateTerminalKeyword("Immortal snail", false);
+            snailWords[5].noun = TerminalUtils.CreateTerminalKeyword("immortal Snail", false);
+            snailWords[6].noun = TerminalUtils.CreateTerminalKeyword("Immortal Snail", false);
+            snailWords[7].noun = TerminalUtils.CreateTerminalKeyword("immortal-snail", false);
+            snailWords[8].noun = TerminalUtils.CreateTerminalKeyword("Immortal-snail", false);
+            snailWords[9].noun = TerminalUtils.CreateTerminalKeyword("immortal-Snail", false);
+            snailWords[10].noun = TerminalUtils.CreateTerminalKeyword("Immortal-Snail", false);
+
+            TerminalKeyword snailKeyword = TerminalUtils.CreateTerminalKeyword("The-Immortal-Snail", false, snailWords);
+            */
+
             LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(snail.enemyPrefab);
-            LethalLib.Modules.Enemies.RegisterEnemy(snail, configRarity.Value, levelFlags, spawnType, null, null);           
+            LethalLib.Modules.Enemies.RegisterEnemy(snail, configRarity.Value, levelFlags, spawnType, /*snailNode, snailKeyword*/ null, null);           
 
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         }
