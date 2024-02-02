@@ -26,9 +26,9 @@ namespace ImmortalSnail
             NetcodePatcher();
 
             // configuration setup
-            configSize = Config.Bind("General", "Scale", 100.0f, "The scale of the snail. Defaults to 100.");
-            configSpeed = Config.Bind("General", "Speed", 0.5f, "The speed of the snail. Defaults to 0.5.");
-            configMaxSnails = Config.Bind("General", "Max Snails", 1, "The maximum number of snails that can spawn in a round. Defaults to 1.");
+            configSize = Config.Bind("General", "Scale", 100.0f, "The scale of the snail.");
+            configSpeed = Config.Bind("General", "Speed", 0.5f, "The speed of the snail.");
+            configMaxSnails = Config.Bind("General", "Max Snails", 1, "The maximum number of snails that can spawn in a round.");
             configRarity = Config.Bind("General", "Rarity", 100, "Honestly not sure exactly how this works, but a higher \"Rarity\" will make the snail more likely to spawn.");
 
             // check if using LethalConfig

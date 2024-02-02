@@ -6,18 +6,16 @@ namespace ImmortalSnail
 {
     class SnailAI : EnemyAI
     {
-
+        private bool allPlayersDead;
         public override void Start()
         {
             // EnemyAI attributes
-            AIIntervalTime = 0.2f;
-            updatePositionThreshold = 0.4f;
-            moveTowardsDestination = true;
-            syncMovementSpeed = 0.22f;
-            exitVentAnimationTime = 1.45f;
+            // Huh. I guess there's just one now.
             enemyHP = 1;
 
             base.Start();
+
+            allPlayersDead = false;
 
             RefreshTargetServerRpc();
         }
@@ -25,7 +23,8 @@ namespace ImmortalSnail
         public override void Update()
         {
             base.Update();
-            if (targetPlayer.isPlayerDead || !targetPlayer.isPlayerControlled)
+
+            if (targetPlayer == null || targetPlayer.isPlayerDead || !targetPlayer.isPlayerControlled)
                 RefreshTargetServerRpc();
         }
 
@@ -45,12 +44,43 @@ namespace ImmortalSnail
                 return;
 
             if (player.playerClientId == targetPlayer.playerClientId)
-                KillPlayerServerRpc(player.playerClientId);
+                KillPlayerServerRpc((int) player.playerClientId);
+        }
+
+        /*
+         * This may seem odd, but it actually makes sense here to just skip this entirely. Why?
+         * This method only does 2 things:
+         *  1. sets destination
+         *  2. synchronizes position
+         *  
+         * But this is essentially a waste of bandwidth and cycles, because we are already
+         * handling this with 1. RefreshTarget and 2. the NetworkTransform attached to the prefab.
+         */ 
+        public override void DoAIInterval()
+        {
+            if (movingTowardsTargetPlayer)
+                destination = RoundManager.Instance.GetNavMeshPosition(targetPlayer.transform.position, RoundManager.Instance.navHit, 2.7f);
+
+            if (moveTowardsDestination)
+                agent.SetDestination(destination);
         }
 
         [ServerRpc(RequireOwnership = false)]
         public void RefreshTargetServerRpc()
         {
+            if (StartOfRound.Instance.allPlayersDead)
+            {
+                if (allPlayersDead)
+                    return;
+
+                Debug.Log("All players dead.");
+                targetPlayer = null;
+                movingTowardsTargetPlayer = false;
+                RefreshTargetClientRpc(-1);
+                allPlayersDead = true;
+                return;
+            }
+
             PlayerControllerB[] allPlayers = StartOfRound.Instance.allPlayerScripts;
 
             PlayerControllerB tempPlayer = null;
@@ -73,27 +103,38 @@ namespace ImmortalSnail
 
             if (tempPlayer == null)
             {
+                targetPlayer = null;
+                movingTowardsTargetPlayer = false;
+                RefreshTargetClientRpc(-1);
                 Debug.LogWarning("Snail was unable to find a player to target.");
                 return;
             }
 
             SetMovingTowardsTargetPlayer(tempPlayer);
             gameObject.GetComponentInChildren<ScanNodeProperties>().subText = "Current Target : " + tempPlayer.playerUsername;
-            RefreshTargetClientRpc(tempPlayer.playerClientId);
+            RefreshTargetClientRpc((int) tempPlayer.playerClientId);
         }
 
         [ClientRpc]
-        public void RefreshTargetClientRpc(ulong playerId)
+        public void RefreshTargetClientRpc(int playerId)
         {
-            SetMovingTowardsTargetPlayer(StartOfRound.Instance.allPlayerScripts[playerId]);
-            gameObject.GetComponentInChildren<ScanNodeProperties>().subText = "Current Target: " + StartOfRound.Instance.allPlayerScripts[playerId].playerUsername;
+            if (playerId == -1)
+            {
+                targetPlayer = null;
+                movingTowardsTargetPlayer = false;
+                return;
+            }
+
+            PlayerControllerB player = StartOfRound.Instance.allPlayerScripts[playerId];
+            SetMovingTowardsTargetPlayer(player);
+            gameObject.GetComponentInChildren<ScanNodeProperties>().subText = "Current Target: " + player.playerUsername;
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void KillPlayerServerRpc(ulong playerId)
+        public void KillPlayerServerRpc(int playerId)
         {
             StartOfRound.Instance.allPlayerScripts[playerId].KillPlayer(Vector3.up, spawnBody: true, CauseOfDeath.Unknown);
-            KillPlayerClientRpc(playerId);
+            KillPlayerClientRpc((ulong) playerId);
             RefreshTargetServerRpc();
         }
 
