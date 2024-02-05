@@ -48,14 +48,14 @@ namespace ImmortalSnail
         }
 
         /*
-         * This may seem odd, but it actually makes sense here to just skip this entirely. Why?
+         * This may seem odd, but it actually makes sense here to just skip EnemyAI.DoAIInterval entirely. Why?
          * This method only does 2 things:
          *  1. sets destination
          *  2. synchronizes position
          *  
          * But this is essentially a waste of bandwidth and cycles, because we are already
          * handling this with 1. RefreshTarget and 2. the NetworkTransform attached to the prefab.
-         */ 
+         */
         public override void DoAIInterval()
         {
             if (movingTowardsTargetPlayer)

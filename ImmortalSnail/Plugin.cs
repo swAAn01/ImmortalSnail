@@ -28,7 +28,7 @@ namespace ImmortalSnail
             // configuration setup
             configSize = Config.Bind("General", "Scale", 100.0f, "The scale of the snail.");
             configSpeed = Config.Bind("General", "Speed", 0.5f, "The speed of the snail.");
-            configMaxSnails = Config.Bind("General", "Max Snails", 1, "The maximum number of snails that can spawn in a round.");
+            configMaxSnails = Config.Bind("General", "Max Snails", 4, "The maximum number of snails that can spawn in a round.");
             configRarity = Config.Bind("General", "Rarity", 100, "Honestly not sure exactly how this works, but a higher \"Rarity\" will make the snail more likely to spawn.");
 
             // check if using LethalConfig
@@ -68,46 +68,28 @@ namespace ImmortalSnail
             Levels.LevelTypes levelFlags = Levels.LevelTypes.All;
             Enemies.SpawnType spawnType = Enemies.SpawnType.Default;
 
-            /*
-             * TODO terminal node is not working right now, so we'll just comment it out for now.
-             * the keywords are working, but it just says we need to scan the creature to get the data
-             * scanning the creature did not change this
-             * I think there's some setting I'm missing. must investigate.
-             * 
             TerminalNode snailNode = ScriptableObject.CreateInstance<TerminalNode>();
             snailNode.displayText = "The Immortal Snail\n\nDanger level: 50%\n\n" +
-                "When I first saw this thing I didn't know what to think. I mean, it's a snail. And it's HUGE. Not as big as some of the other things I've seen in here," +
-                " but still enough to take a guy by surprise. It's resilient, though. Once it locks on to you, it won't give up until you're gone one way or another." +
-                " We've tried everything to stop it too, but nothing seems to penetrate its shell.";
+                "The following is a recitation of the events that transpired on [REDACTED] to the best of my memory. This is my experience with the entity and I swear to do right " +
+            "by the company and describe it as best I can. There were four of us out on a routine scrap-job, absolutely nothing was out of the ordinary before [REDACTED] spotted it. " +
+            "We laughed our asses off. Half the things in here will make you soil your hazmat suit on the spot, and then there's this thing, moving at, well you know. We had our fun, but ultimately " +
+            "moved on and forgot about the thing. Me and the boys went our separate ways and decided to rendezvous at the ship. Three of us returned, but [REDACTED] was missing. We all decided to go back in and investigate. " +
+            "The place was silent. We thought things might have taken a turn for the worse, so we decided to split up and either guide [REDACTED] back to ship, or at least recover his remains. " +
+            "As often happens, I found myself lost. Turning the corners of this elaborate labyrinth, I finally found what was left of [REDACTED]. It was unusual, I'd never seen a coworker left in such a state. " +
+            "Reality struck as I turned a corner and found another comrade waiting on the ground for me, and then another. I made the heartbreaking decision to leave my comrades behind. I was almost free, when I find staring at " +
+            "me from the front entrance the same snail I'd seen before. I saw red. I beat that thing as ruthlessly as I could (with my shovel), entirely imprinting my rage on its presumably fragile shell. " +
+            "I expected to find a small puddle where the snail once stood, but the it was unaffected. It moved towards me at the same agitating pace it did before. The aftermath is a blur. Sometimes I wonder if I even made it back to the ship at all." +
+            "\n\n";
+
             snailNode.clearPreviousText = true;
-            snailNode.maxCharactersToType = 500;
+            snailNode.maxCharactersToType = 2000;
             snailNode.creatureName = "The Immortal Snail";
             snailNode.creatureFileID = 1738;
 
-            CompatibleNoun[] snailWords = new CompatibleNoun[11];
-            for (int i = 0; i < snailWords.Length; i++)
-            {
-                snailWords[i] = new CompatibleNoun();
-                snailWords[i].result = snailNode;
-            }
-            
-            snailWords[0].noun = TerminalUtils.CreateTerminalKeyword("snail", false);
-            snailWords[1].noun = TerminalUtils.CreateTerminalKeyword("Snail", false);
-            snailWords[2].noun = TerminalUtils.CreateTerminalKeyword("immortalsnail", false);
-            snailWords[3].noun = TerminalUtils.CreateTerminalKeyword("immortal snail", false);
-            snailWords[4].noun = TerminalUtils.CreateTerminalKeyword("Immortal snail", false);
-            snailWords[5].noun = TerminalUtils.CreateTerminalKeyword("immortal Snail", false);
-            snailWords[6].noun = TerminalUtils.CreateTerminalKeyword("Immortal Snail", false);
-            snailWords[7].noun = TerminalUtils.CreateTerminalKeyword("immortal-snail", false);
-            snailWords[8].noun = TerminalUtils.CreateTerminalKeyword("Immortal-snail", false);
-            snailWords[9].noun = TerminalUtils.CreateTerminalKeyword("immortal-Snail", false);
-            snailWords[10].noun = TerminalUtils.CreateTerminalKeyword("Immortal-Snail", false);
+            TerminalKeyword snailKeyword = TerminalUtils.CreateTerminalKeyword("snail", specialKeywordResult: snailNode);
 
-            TerminalKeyword snailKeyword = TerminalUtils.CreateTerminalKeyword("The-Immortal-Snail", false, snailWords);
-            */
-
-            LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(snail.enemyPrefab);
-            LethalLib.Modules.Enemies.RegisterEnemy(snail, configRarity.Value, levelFlags, spawnType, /*snailNode, snailKeyword*/ null, null);           
+            NetworkPrefabs.RegisterNetworkPrefab(snail.enemyPrefab);
+            Enemies.RegisterEnemy(snail, configRarity.Value, levelFlags, spawnType, snailNode, snailKeyword);
 
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         }

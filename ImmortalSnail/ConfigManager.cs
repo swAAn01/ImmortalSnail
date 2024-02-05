@@ -10,20 +10,20 @@ namespace ImmortalSnail
         {
             var sizeSlider = new FloatSliderConfigItem(Plugin.configSize, new FloatSliderOptions
             {
-                Min = 25f,
+                Min = 75f,
                 Max = 225f
             });
 
             var speedSlider = new FloatSliderConfigItem(Plugin.configSpeed, new FloatSliderOptions
             {
-                Min = 0.2f,
-                Max = 1.0f
+                Min = 0.1f,
+                Max = 2.0f
             });
 
             var maxSnailsSlider = new IntSliderConfigItem(Plugin.configMaxSnails, new IntSliderOptions
             {
                 Min = 0,
-                Max = 4
+                Max = 10
             });
 
             var raritySlider = new IntSliderConfigItem(Plugin.configRarity, new IntSliderOptions
