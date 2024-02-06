@@ -7,25 +7,18 @@ namespace ImmortalSnail
     class SnailAI : EnemyAI
     {
         private bool allPlayersDead;
+        private float timeAtLastUsingEntrance;
         public override void Start()
         {
             // EnemyAI attributes
-            // Huh. I guess there's just one now.
             enemyHP = 1;
+            isOutside = false;
 
             base.Start();
 
             allPlayersDead = false;
 
             RefreshTargetServerRpc();
-        }
-
-        public override void Update()
-        {
-            base.Update();
-
-            if (targetPlayer == null || targetPlayer.isPlayerDead || !targetPlayer.isPlayerControlled)
-                RefreshTargetServerRpc();
         }
 
         public override void OnCollideWithPlayer(Collider other)
@@ -53,16 +46,42 @@ namespace ImmortalSnail
          *  1. sets destination
          *  2. synchronizes position
          *  
-         * But this is essentially a waste of bandwidth and cycles, because we are already
-         * handling this with 1. RefreshTarget and 2. the NetworkTransform attached to the prefab.
+         * But this is essentially a waste of bandwidth and cycles, because we can handle this with:
+         *  1. setting destination here
+         *  2. the NetworkTransform attached to the snail prefab
          */
         public override void DoAIInterval()
         {
+            if (targetPlayer == null || targetPlayer.isPlayerDead || !targetPlayer.isPlayerControlled)
+                RefreshTargetServerRpc();
+
             if (movingTowardsTargetPlayer)
-                destination = RoundManager.Instance.GetNavMeshPosition(targetPlayer.transform.position, RoundManager.Instance.navHit, 2.7f);
+            {
+                if ((targetPlayer.isInsideFactory && !isOutside) || (!targetPlayer.isInsideFactory && isOutside))
+                    destination = RoundManager.Instance.GetNavMeshPosition(targetPlayer.transform.position, RoundManager.Instance.navHit, 2.7f);
+                else if (getNearestExitTransform() != null)
+                    destination = RoundManager.Instance.GetNavMeshPosition(getNearestExitTransform().position, RoundManager.Instance.navHit, 2.7f);
+                else
+                    Debug.LogWarning("Snail has no destination! Target Player is in a different area, and it couldn't find an exit.");
+            }
 
             if (moveTowardsDestination)
                 agent.SetDestination(destination);
+
+            Transform nearbyExitTransform = getNearbyExitTransform();
+            if (nearbyExitTransform != null && Time.realtimeSinceStartup - timeAtLastUsingEntrance > 3f && Plugin.configGoOutside.Value)
+            {
+                if (base.IsOwner) // no clue why this is necessary, but it is!
+                {
+                    agent.enabled = false;
+                    base.transform.position = nearbyExitTransform.position;
+                    agent.enabled = true;
+                }
+                else
+                    base.transform.position = nearbyExitTransform.position;
+                timeAtLastUsingEntrance = Time.realtimeSinceStartup;
+                isOutside = !isOutside;
+            }
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -92,7 +111,7 @@ namespace ImmortalSnail
                 if (allPlayers[i].isPlayerDead || !allPlayers[i].isPlayerControlled)
                     continue;
 
-                float d2 = Vector3.Distance(this.transform.position, allPlayers[i].transform.position);
+                float d2 = Vector3.Distance(base.transform.position, allPlayers[i].transform.position);
 
                 if (d2 < dist)
                 {
@@ -142,6 +161,40 @@ namespace ImmortalSnail
         public void KillPlayerClientRpc(ulong playerId)
         {
             StartOfRound.Instance.allPlayerScripts[playerId].KillPlayer(Vector3.up, spawnBody: true, CauseOfDeath.Unknown);
+        }
+
+        private Transform getNearbyExitTransform()
+        {
+            EntranceTeleport[] entrances = Object.FindObjectsOfType<EntranceTeleport>(includeInactive: false);
+            foreach (EntranceTeleport entrance in entrances)
+            {
+                if (Vector3.Distance(base.transform.position, entrance.entrancePoint.position) < 1f) // found nearby entrance, get corresponding exit
+                {
+                    foreach (EntranceTeleport entrance2 in entrances)
+                    {
+                        if (entrance2.isEntranceToBuilding != entrance.isEntranceToBuilding && entrance2.entranceId == entrance.entranceId)
+                            return entrance2.entrancePoint;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private Transform getNearestExitTransform()
+        {
+            EntranceTeleport[] entrances = Object.FindObjectsOfType<EntranceTeleport>(includeInactive: false);
+            Transform t = null;
+            float dist = float.MaxValue;
+            foreach (EntranceTeleport entrance in entrances)
+            {
+                float d2 = Vector3.Distance(base.transform.position, entrance.entrancePoint.position);
+                if (d2 < dist)
+                {
+                    t = entrance.entrancePoint;
+                    dist = d2;
+                }
+            }
+            return t;
         }
     }
 }

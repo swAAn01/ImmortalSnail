@@ -5,7 +5,6 @@ using System.Reflection;
 using UnityEngine;
 using BepInEx.Configuration;
 using UnityEngine.AI;
-using System.Collections;
 
 namespace ImmortalSnail
 {
@@ -19,6 +18,7 @@ namespace ImmortalSnail
         public static ConfigEntry<float> configSpeed;
         public static ConfigEntry<int> configMaxSnails;
         public static ConfigEntry<int> configRarity;
+        public static ConfigEntry<bool> configGoOutside;
 
         private void Awake()
         {
@@ -30,6 +30,7 @@ namespace ImmortalSnail
             configSpeed = Config.Bind("General", "Speed", 0.5f, "The speed of the snail.");
             configMaxSnails = Config.Bind("General", "Max Snails", 4, "The maximum number of snails that can spawn in a round.");
             configRarity = Config.Bind("General", "Rarity", 100, "Honestly not sure exactly how this works, but a higher \"Rarity\" will make the snail more likely to spawn.");
+            configGoOutside = Config.Bind("General", "Can go outside", true, "Whether or not the snail can follow you outside the factory!");
 
             // check if using LethalConfig
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("ainavt.lc.lethalconfig"))
