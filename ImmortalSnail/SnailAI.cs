@@ -6,17 +6,16 @@ namespace ImmortalSnail
 {
     class SnailAI : EnemyAI
     {
+
         private bool allPlayersDead;
         private float timeAtLastUsingEntrance;
+
         public override void Start()
         {
             // EnemyAI attributes
             enemyHP = 1;
-            isOutside = false;
 
             base.Start();
-
-            allPlayersDead = false;
 
             RefreshTargetServerRpc();
         }
@@ -47,41 +46,40 @@ namespace ImmortalSnail
          *  2. synchronizes position
          *  
          * But this is essentially a waste of bandwidth and cycles, because we can handle this with:
-         *  1. setting destination here
+         *  1. setting destination here and in Update()
          *  2. the NetworkTransform attached to the snail prefab
          */
         public override void DoAIInterval()
         {
-            if (targetPlayer == null || targetPlayer.isPlayerDead || !targetPlayer.isPlayerControlled)
+            if (targetPlayer == null || targetPlayer.isPlayerDead || !targetPlayer.isPlayerControlled
+                || targetPlayer.isInHangarShipRoom)
                 RefreshTargetServerRpc();
 
-            if (movingTowardsTargetPlayer)
-            {
-                if ((targetPlayer.isInsideFactory && !isOutside) || (!targetPlayer.isInsideFactory && isOutside))
-                    destination = RoundManager.Instance.GetNavMeshPosition(targetPlayer.transform.position, RoundManager.Instance.navHit, 2.7f);
-                else if (getNearestExitTransform() != null)
-                    destination = RoundManager.Instance.GetNavMeshPosition(getNearestExitTransform().position, RoundManager.Instance.navHit, 2.7f);
-                else
-                    Debug.LogWarning("Snail has no destination! Target Player is in a different area, and it couldn't find an exit.");
-            }
+            if (allPlayersDead)
+                return;
 
-            if (moveTowardsDestination)
-                agent.SetDestination(destination);
-
-            Transform nearbyExitTransform = getNearbyExitTransform();
-            if (nearbyExitTransform != null && Time.realtimeSinceStartup - timeAtLastUsingEntrance > 3f && Plugin.configGoOutside.Value)
+            if (!isInTargetPlayerArea()) // use entrance if applicable
             {
-                if (base.IsOwner) // no clue why this is necessary, but it is!
+                Transform nearbyExitTransform = getNearbyExitTransform(); 
+                if (nearbyExitTransform && Time.realtimeSinceStartup - timeAtLastUsingEntrance > 3f && Plugin.configGoOutside.Value)
                 {
-                    agent.enabled = false;
-                    base.transform.position = nearbyExitTransform.position;
-                    agent.enabled = true;
+                    if (base.IsOwner) // no clue why this is necessary, but it is!
+                    {
+                        agent.enabled = false;
+                        base.transform.position = nearbyExitTransform.position;
+                        agent.enabled = true;
+                    }
+                    else
+                        base.transform.position = nearbyExitTransform.position;
+
+                    timeAtLastUsingEntrance = Time.realtimeSinceStartup;
+                    isOutside = !isOutside;
                 }
-                else
-                    base.transform.position = nearbyExitTransform.position;
-                timeAtLastUsingEntrance = Time.realtimeSinceStartup;
-                isOutside = !isOutside;
+                else if (movingTowardsTargetPlayer && getNearestExitTransform())
+                    destination = RoundManager.Instance.GetNavMeshPosition(getNearestExitTransform().position, RoundManager.Instance.navHit, 2.7f);
             }
+
+            agent.SetDestination(destination);
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -108,7 +106,8 @@ namespace ImmortalSnail
             // find nearest player
             for (int i = 0; i < allPlayers.Length; i++)
             {
-                if (allPlayers[i].isPlayerDead || !allPlayers[i].isPlayerControlled)
+                if (allPlayers[i].isPlayerDead || !allPlayers[i].isPlayerControlled
+                    || allPlayers[i].isInHangarShipRoom)
                     continue;
 
                 float d2 = Vector3.Distance(base.transform.position, allPlayers[i].transform.position);
@@ -135,7 +134,7 @@ namespace ImmortalSnail
         }
 
         [ClientRpc]
-        public void RefreshTargetClientRpc(int playerId)
+        public void RefreshTargetClientRpc(int playerId) // possibly unecessary
         {
             if (playerId == -1)
             {
@@ -195,6 +194,12 @@ namespace ImmortalSnail
                 }
             }
             return t;
+        }
+
+        // area meaning inside or outside
+        private bool isInTargetPlayerArea()
+        {
+            return (targetPlayer.isInsideFactory && !isOutside) || (!targetPlayer.isInsideFactory && isOutside);
         }
     }
 }

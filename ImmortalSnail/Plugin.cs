@@ -10,10 +10,13 @@ namespace ImmortalSnail
 {
 
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInDependency(LethalLib.Plugin.ModGUID)]
+    [BepInDependency("ainavt.lc.lethalconfig", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
 
         public static AssetBundle bundle;
+
         public static ConfigEntry<float> configSize;
         public static ConfigEntry<float> configSpeed;
         public static ConfigEntry<int> configMaxSnails;
@@ -22,6 +25,14 @@ namespace ImmortalSnail
 
         private void Awake()
         {
+            Logger.LogInfo
+               ("\n         __,._" + "\n" +
+                "        /  _  \\" + "\n" +
+                "       |  6 \\  \\  oo" + "\n" +
+                "        \\___/ .|__||" + "\n" +
+                " __,..=\" ^  . , \"  ,\\" + "\n" +
+                "<.__________________/");
+
             // setup for Unity Netcode Patcher
             NetcodePatcher();
 
@@ -30,7 +41,7 @@ namespace ImmortalSnail
             configSpeed = Config.Bind("General", "Speed", 0.5f, "The speed of the snail.");
             configMaxSnails = Config.Bind("General", "Max Snails", 4, "The maximum number of snails that can spawn in a round.");
             configRarity = Config.Bind("General", "Rarity", 100, "Honestly not sure exactly how this works, but a higher \"Rarity\" will make the snail more likely to spawn.");
-            configGoOutside = Config.Bind("General", "Can go outside", true, "Whether or not the snail can follow you outside the factory!");
+            configGoOutside = Config.Bind("Pathing", "Can Go Outside", true, "Whether or not the snail can follow you outside the factory.");
 
             // check if using LethalConfig
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("ainavt.lc.lethalconfig"))

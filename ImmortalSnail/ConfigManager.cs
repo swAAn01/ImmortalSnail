@@ -32,13 +32,13 @@ namespace ImmortalSnail
                 Max = 100
             });
 
-            var goOutsideSlider = new BoolCheckBoxConfigItem(Plugin.configGoOutside, requiresRestart: false);
+            var goOutsideBox = new BoolCheckBoxConfigItem(Plugin.configGoOutside, requiresRestart: false);
 
             LethalConfigManager.AddConfigItem(sizeSlider);
             LethalConfigManager.AddConfigItem(speedSlider);
             LethalConfigManager.AddConfigItem(maxSnailsSlider);
             LethalConfigManager.AddConfigItem(raritySlider);
-            LethalConfigManager.AddConfigItem(goOutsideSlider);
+            LethalConfigManager.AddConfigItem(goOutsideBox);
         }
     }
 }
