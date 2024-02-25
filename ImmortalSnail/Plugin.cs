@@ -22,9 +22,23 @@ namespace ImmortalSnail
         public static ConfigEntry<int> configMaxSnails;
         public static ConfigEntry<int> configRarity;
         public static ConfigEntry<bool> configGoOutside;
+        public static ConfigEntry<bool> configEnterShip;
 
         private void Awake()
         {
+            Logger.LogInfo("Loading a mod by swAAn\n\n" +
+                "                                    _\n" +
+                "                                ,-\"\" \"\".\n" +
+                "                              ,'  ____  `.\n" +
+                "                            ,'  ,'    `.  `._\n" +
+                "   (`.         _..--.._   ,'  ,'        \\    \\\n" +
+                "  (`-.\\    .-\"\"        \"\"'   /          (  d _b\n" +
+                " (`._  `-\"\" ,._             (            `-(   \\\n" +
+                " <_  `     (  <`<            \\              `-._\\\n" +
+                "  <`-       (__< <           :\n" +
+                "   (__        (_<_<          ;\n" +
+                "    `~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                );
             Logger.LogInfo
                ("\n         __,._" + "\n" +
                 "        /  _  \\" + "\n" +
@@ -41,7 +55,8 @@ namespace ImmortalSnail
             configSpeed = Config.Bind("General", "Speed", 0.5f, "The speed of the snail.");
             configMaxSnails = Config.Bind("General", "Max Snails", 4, "The maximum number of snails that can spawn in a round.");
             configRarity = Config.Bind("General", "Rarity", 100, "Honestly not sure exactly how this works, but a higher \"Rarity\" will make the snail more likely to spawn.");
-            configGoOutside = Config.Bind("Pathing", "Can Go Outside", true, "Whether or not the snail can follow you outside the factory.");
+            configGoOutside = Config.Bind("Pathing", "Can Go Outside", true, "If enabled, allows the snail to exit the factory and chase players outside.");
+            configEnterShip = Config.Bind("Pathing", "Can Enter Ship", true, "If enabled, allows the snail to target players that are in the ship room.");
 
             // check if using LethalConfig
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("ainavt.lc.lethalconfig"))
@@ -103,7 +118,7 @@ namespace ImmortalSnail
             NetworkPrefabs.RegisterNetworkPrefab(snail.enemyPrefab);
             Enemies.RegisterEnemy(snail, configRarity.Value, levelFlags, spawnType, snailNode, snailKeyword);
 
-            Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
+            Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_NAME} " + $"{PluginInfo.PLUGIN_VERSION} is loaded!");
         }
 
         private static void NetcodePatcher()

@@ -6,8 +6,6 @@ namespace ImmortalSnail
 {
     class SnailAI : EnemyAI
     {
-
-        private bool allPlayersDead;
         private float timeAtLastUsingEntrance;
 
         public override void Start()
@@ -35,8 +33,8 @@ namespace ImmortalSnail
             if (stunNormalizedTimer >= 0f)
                 return;
 
-            if (player.playerClientId == targetPlayer.playerClientId)
-                KillPlayerServerRpc((int) player.playerClientId);
+            if (targetPlayer && player.playerClientId == targetPlayer.playerClientId)
+                KillPlayerServerRpc((int)player.playerClientId);
         }
 
         /*
@@ -52,10 +50,10 @@ namespace ImmortalSnail
         public override void DoAIInterval()
         {
             if (targetPlayer == null || targetPlayer.isPlayerDead || !targetPlayer.isPlayerControlled
-                || targetPlayer.isInHangarShipRoom)
-                RefreshTargetServerRpc();
+                || (targetPlayer.isInHangarShipRoom && !Plugin.configEnterShip.Value))
+                    RefreshTargetServerRpc();
 
-            if (allPlayersDead)
+            if (!moveTowardsDestination)
                 return;
 
             if (!isInTargetPlayerArea()) // use entrance if applicable
@@ -85,19 +83,6 @@ namespace ImmortalSnail
         [ServerRpc(RequireOwnership = false)]
         public void RefreshTargetServerRpc()
         {
-            if (StartOfRound.Instance.allPlayersDead)
-            {
-                if (allPlayersDead)
-                    return;
-
-                Debug.Log("All players dead.");
-                targetPlayer = null;
-                movingTowardsTargetPlayer = false;
-                RefreshTargetClientRpc(-1);
-                allPlayersDead = true;
-                return;
-            }
-
             PlayerControllerB[] allPlayers = StartOfRound.Instance.allPlayerScripts;
 
             PlayerControllerB tempPlayer = null;
@@ -106,8 +91,8 @@ namespace ImmortalSnail
             // find nearest player
             for (int i = 0; i < allPlayers.Length; i++)
             {
-                if (allPlayers[i].isPlayerDead || !allPlayers[i].isPlayerControlled
-                    || allPlayers[i].isInHangarShipRoom)
+                if (allPlayers[i] == null || allPlayers[i].isPlayerDead || !allPlayers[i].isPlayerControlled
+                || (allPlayers[i].isInHangarShipRoom && !Plugin.configEnterShip.Value))
                     continue;
 
                 float d2 = Vector3.Distance(base.transform.position, allPlayers[i].transform.position);
@@ -123,14 +108,15 @@ namespace ImmortalSnail
             {
                 targetPlayer = null;
                 movingTowardsTargetPlayer = false;
+                moveTowardsDestination = false;
                 RefreshTargetClientRpc(-1);
-                Debug.LogWarning("Snail was unable to find a player to target.");
                 return;
             }
 
             SetMovingTowardsTargetPlayer(tempPlayer);
             gameObject.GetComponentInChildren<ScanNodeProperties>().subText = "Current Target : " + tempPlayer.playerUsername;
-            RefreshTargetClientRpc((int) tempPlayer.playerClientId);
+            moveTowardsDestination = true;
+            RefreshTargetClientRpc((int)tempPlayer.playerClientId);
         }
 
         [ClientRpc]
@@ -140,24 +126,25 @@ namespace ImmortalSnail
             {
                 targetPlayer = null;
                 movingTowardsTargetPlayer = false;
+                moveTowardsDestination = false;
                 return;
             }
 
             PlayerControllerB player = StartOfRound.Instance.allPlayerScripts[playerId];
             SetMovingTowardsTargetPlayer(player);
             gameObject.GetComponentInChildren<ScanNodeProperties>().subText = "Current Target: " + player.playerUsername;
+            moveTowardsDestination = true;
         }
 
         [ServerRpc(RequireOwnership = false)]
         public void KillPlayerServerRpc(int playerId)
         {
             StartOfRound.Instance.allPlayerScripts[playerId].KillPlayer(Vector3.up, spawnBody: true, CauseOfDeath.Unknown);
-            KillPlayerClientRpc((ulong) playerId);
-            RefreshTargetServerRpc();
+            KillPlayerClientRpc(playerId);
         }
 
         [ClientRpc]
-        public void KillPlayerClientRpc(ulong playerId)
+        public void KillPlayerClientRpc(int playerId)
         {
             StartOfRound.Instance.allPlayerScripts[playerId].KillPlayer(Vector3.up, spawnBody: true, CauseOfDeath.Unknown);
         }

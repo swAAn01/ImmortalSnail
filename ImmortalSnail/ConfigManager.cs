@@ -33,12 +33,14 @@ namespace ImmortalSnail
             });
 
             var goOutsideBox = new BoolCheckBoxConfigItem(Plugin.configGoOutside, requiresRestart: false);
+            var enterShipBox = new BoolCheckBoxConfigItem(Plugin.configEnterShip, requiresRestart: false);
 
             LethalConfigManager.AddConfigItem(sizeSlider);
             LethalConfigManager.AddConfigItem(speedSlider);
             LethalConfigManager.AddConfigItem(maxSnailsSlider);
             LethalConfigManager.AddConfigItem(raritySlider);
             LethalConfigManager.AddConfigItem(goOutsideBox);
+            LethalConfigManager.AddConfigItem(enterShipBox);
         }
     }
 }
