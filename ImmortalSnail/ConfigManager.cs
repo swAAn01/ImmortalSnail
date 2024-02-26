@@ -34,6 +34,9 @@ namespace ImmortalSnail
 
             var goOutsideBox = new BoolCheckBoxConfigItem(Plugin.configGoOutside, requiresRestart: false);
             var enterShipBox = new BoolCheckBoxConfigItem(Plugin.configEnterShip, requiresRestart: false);
+            var garyBox = new BoolCheckBoxConfigItem(Plugin.configGary, requiresRestart: true);
+            var canExplodeBox = new BoolCheckBoxConfigItem(Plugin.configCanExplode, requiresRestart: false);
+            var explosionKillOthersBox = new BoolCheckBoxConfigItem(Plugin.configExplosionKillOthers, requiresRestart: false);
 
             LethalConfigManager.AddConfigItem(sizeSlider);
             LethalConfigManager.AddConfigItem(speedSlider);
@@ -41,6 +44,9 @@ namespace ImmortalSnail
             LethalConfigManager.AddConfigItem(raritySlider);
             LethalConfigManager.AddConfigItem(goOutsideBox);
             LethalConfigManager.AddConfigItem(enterShipBox);
+            LethalConfigManager.AddConfigItem(garyBox);
+            LethalConfigManager.AddConfigItem(canExplodeBox);
+            LethalConfigManager.AddConfigItem(explosionKillOthersBox);
         }
     }
 }

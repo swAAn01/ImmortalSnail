@@ -23,6 +23,9 @@ namespace ImmortalSnail
         public static ConfigEntry<int> configRarity;
         public static ConfigEntry<bool> configGoOutside;
         public static ConfigEntry<bool> configEnterShip;
+        public static ConfigEntry<bool> configGary;
+        public static ConfigEntry<bool> configCanExplode;
+        public static ConfigEntry<bool> configExplosionKillOthers;
 
         private void Awake()
         {
@@ -57,6 +60,9 @@ namespace ImmortalSnail
             configRarity = Config.Bind("General", "Rarity", 100, "Honestly not sure exactly how this works, but a higher \"Rarity\" will make the snail more likely to spawn.");
             configGoOutside = Config.Bind("Pathing", "Can Go Outside", true, "If enabled, allows the snail to exit the factory and chase players outside.");
             configEnterShip = Config.Bind("Pathing", "Can Enter Ship", true, "If enabled, allows the snail to target players that are in the ship room.");
+            configGary = Config.Bind("General", "Gary Mode", false, "Snail is reskinned to look like Spongebob's faithful pet snail, Gary!");
+            configCanExplode = Config.Bind("Explosions", "Can Explode", true, "Snail creates an explosion when killing player.");
+            configExplosionKillOthers = Config.Bind("Explosions", "Explosions Kill Other Players", false, "If enabled, snail explosion will kill other players in explosion radius.");
 
             // check if using LethalConfig
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("ainavt.lc.lethalconfig"))
@@ -81,13 +87,15 @@ namespace ImmortalSnail
             }
 
             Logger.LogInfo("Configuring Snail.");
+            if (configGary.Value)
+                snail.enemyPrefab = bundle.LoadAsset<GameObject>("gary_snail.prefab");
+
             snail.enemyPrefab.AddComponent<SnailAI>();
             snail.enemyPrefab.GetComponent<SnailAI>().enemyType = snail;
             snail.enemyPrefab.GetComponentInChildren<EnemyAICollisionDetect>().mainScript = snail.enemyPrefab.GetComponent<SnailAI>();
 
             Logger.LogInfo("Applying User-Defined Configuration Settings");
-            float scale = 25f * configSize.Value / 100f;
-            snail.enemyPrefab.transform.localScale = new Vector3(scale, scale, scale);
+            snail.enemyPrefab.transform.localScale *= configSize.Value / 100f;
             snail.enemyPrefab.GetComponent<NavMeshAgent>().speed = configSpeed.Value;
             snail.MaxCount = configMaxSnails.Value;
 

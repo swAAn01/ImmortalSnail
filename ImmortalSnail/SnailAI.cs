@@ -139,14 +139,22 @@ namespace ImmortalSnail
         [ServerRpc(RequireOwnership = false)]
         public void KillPlayerServerRpc(int playerId)
         {
-            StartOfRound.Instance.allPlayerScripts[playerId].KillPlayer(Vector3.up, spawnBody: true, CauseOfDeath.Unknown);
-            KillPlayerClientRpc(playerId);
+            if (Plugin.configCanExplode.Value)
+                Explode(playerId, Plugin.configExplosionKillOthers.Value);
+            else
+                StartOfRound.Instance.allPlayerScripts[playerId].KillPlayer(Vector3.zero, spawnBody: true, CauseOfDeath.Unknown);
+
+            KillPlayerClientRpc(playerId, Plugin.configCanExplode.Value, Plugin.configExplosionKillOthers.Value);
+            RefreshTargetServerRpc();
         }
 
         [ClientRpc]
-        public void KillPlayerClientRpc(int playerId)
+        public void KillPlayerClientRpc(int playerId, bool explode, bool killOthers)
         {
-            StartOfRound.Instance.allPlayerScripts[playerId].KillPlayer(Vector3.up, spawnBody: true, CauseOfDeath.Unknown);
+            if (explode)
+                Explode(playerId, killOthers);
+            else
+                StartOfRound.Instance.allPlayerScripts[playerId].KillPlayer(Vector3.zero, spawnBody: true, CauseOfDeath.Unknown);
         }
 
         private Transform getNearbyExitTransform()
@@ -187,6 +195,26 @@ namespace ImmortalSnail
         private bool isInTargetPlayerArea()
         {
             return (targetPlayer.isInsideFactory && !isOutside) || (!targetPlayer.isInsideFactory && isOutside);
+        }
+
+        private void Explode(int playerId, bool killOthers)
+        {
+            if (killOthers)
+                Landmine.SpawnExplosion(base.transform.position, true, 5.7f, 6.4f);
+            else
+            {
+                Landmine.SpawnExplosion(base.transform.position, true, 0f, 0f);
+                StartOfRound.Instance.allPlayerScripts[playerId].KillPlayer(GetBodyVelocity(playerId), spawnBody: true, CauseOfDeath.Blast);
+            }
+        }
+
+        private Vector3 GetBodyVelocity(int playerId)
+        {
+            Vector3 result = StartOfRound.Instance.allPlayerScripts[playerId].gameplayCamera.transform.position;
+            result -= base.transform.position;
+            result *= 80f;
+            result /= Vector3.Distance(StartOfRound.Instance.allPlayerScripts[playerId].gameplayCamera.transform.position, base.transform.position);
+            return result;
         }
     }
 }
