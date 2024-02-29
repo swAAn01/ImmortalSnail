@@ -26,6 +26,7 @@ namespace ImmortalSnail
         public static ConfigEntry<bool> configGary;
         public static ConfigEntry<bool> configCanExplode;
         public static ConfigEntry<bool> configExplosionKillOthers;
+        public static ConfigEntry<bool> configShowTarget;
 
         private void Awake()
         {
@@ -54,15 +55,16 @@ namespace ImmortalSnail
             NetcodePatcher();
 
             // configuration setup
-            configSize = Config.Bind("General", "Scale", 100.0f, "The scale of the snail.");
+            configSize = Config.Bind("General", "Scale", 100.0f, "The size of the snail.");
             configSpeed = Config.Bind("General", "Speed", 0.5f, "The speed of the snail.");
             configMaxSnails = Config.Bind("General", "Max Snails", 4, "The maximum number of snails that can spawn in a round.");
-            configRarity = Config.Bind("General", "Rarity", 100, "Honestly not sure exactly how this works, but a higher \"Rarity\" will make the snail more likely to spawn.");
+            configRarity = Config.Bind("General", "Rarity", 80, "Honestly not sure exactly how this works, but a higher \"Rarity\" will make the snail more likely to spawn.");
             configGoOutside = Config.Bind("Pathing", "Can Go Outside", true, "If enabled, allows the snail to exit the factory and chase players outside.");
             configEnterShip = Config.Bind("Pathing", "Can Enter Ship", true, "If enabled, allows the snail to target players that are in the ship room.");
-            configGary = Config.Bind("General", "Gary Mode", false, "Snail is reskinned to look like Spongebob's faithful pet snail, Gary!");
+            configGary = Config.Bind("Misc", "Gary Mode", false, "Snail is reskinned to look like Spongebob's faithful pet snail, Gary!");
             configCanExplode = Config.Bind("Explosions", "Can Explode", true, "Snail creates an explosion when killing player.");
             configExplosionKillOthers = Config.Bind("Explosions", "Explosions Kill Other Players", false, "If enabled, snail explosion will kill other players in explosion radius.");
+            configShowTarget = Config.Bind("General", "Show Target on Scan", true, "If enabled, shows the targeted player when scanned.");
 
             // check if using LethalConfig
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("ainavt.lc.lethalconfig"))
