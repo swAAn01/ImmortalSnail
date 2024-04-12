@@ -7,6 +7,7 @@ namespace ImmortalSnail
     class SnailAI : EnemyAI
     {
         private float timeAtLastUsingEntrance;
+        private float timeOfLastExplosion;
 
         public override void Start()
         {
@@ -205,6 +206,9 @@ namespace ImmortalSnail
 
         private void Explode(int playerId, bool killOthers)
         {
+            if (Time.realtimeSinceStartup - timeOfLastExplosion <= 0.5f)
+                return;
+
             if (killOthers)
             {
                 Landmine.SpawnExplosion(base.transform.position, true, 5.7f, 6.4f);
@@ -214,6 +218,8 @@ namespace ImmortalSnail
                 Landmine.SpawnExplosion(base.transform.position, true, 0f, 0f);
                 StartOfRound.Instance.allPlayerScripts[playerId].KillPlayer(GetBodyVelocity(playerId), spawnBody: true, CauseOfDeath.Blast);
             }
+
+            timeOfLastExplosion = Time.realtimeSinceStartup;
         }
 
         private Vector3 GetBodyVelocity(int playerId)
