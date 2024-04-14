@@ -27,6 +27,7 @@ namespace ImmortalSnail
         public static ConfigEntry<bool> configCanExplode;
         public static ConfigEntry<bool> configExplosionKillOthers;
         public static ConfigEntry<bool> configShowTarget;
+        public static ConfigEntry<bool> configKillAnyPlayer;
 
         private void Awake()
         {
@@ -65,6 +66,7 @@ namespace ImmortalSnail
             configCanExplode = Config.Bind("Explosions", "Can Explode", true, "Snail creates an explosion when killing player.");
             configExplosionKillOthers = Config.Bind("Explosions", "Explosions Kill Other Players", false, "If enabled, snail explosion will kill other players in explosion radius.");
             configShowTarget = Config.Bind("General", "Show Target on Scan", true, "If enabled, shows the targeted player when scanned.");
+            configKillAnyPlayer = Config.Bind("General", "Kill Any Player", false, "If enabled, the snail will kill ANY player it comes in contact with. The snail targeting system will work the same way.");
 
             // check if using LethalConfig
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("ainavt.lc.lethalconfig"))

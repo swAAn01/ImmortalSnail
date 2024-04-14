@@ -31,7 +31,11 @@ namespace ImmortalSnail
 
             base.OnCollideWithPlayer(other);
 
-            if (targetPlayer && player.playerClientId == targetPlayer.playerClientId) KillPlayerServerRpc((int)player.playerClientId);
+            if ((targetPlayer && player.playerClientId == targetPlayer.playerClientId)
+                || Plugin.configKillAnyPlayer.Value)
+            {
+                KillPlayerServerRpc((int)player.playerClientId);
+            }
         }
 
         /*
@@ -128,7 +132,7 @@ namespace ImmortalSnail
             SetMovingTowardsTargetPlayer(tempPlayer);
             if (Plugin.configShowTarget.Value) gameObject.GetComponentInChildren<ScanNodeProperties>().subText = "Current Target : " + tempPlayer.playerUsername;
 
-            RefreshTargetClientRpc((int)tempPlayer.playerClientId);
+            RefreshTargetClientRpc((int) tempPlayer.playerClientId);
         }
 
         [ClientRpc]
@@ -154,7 +158,6 @@ namespace ImmortalSnail
             else StartOfRound.Instance.allPlayerScripts[playerId].KillPlayer(Vector3.zero, spawnBody: true, CauseOfDeath.Unknown);
 
             KillPlayerClientRpc(playerId, Plugin.configCanExplode.Value, Plugin.configExplosionKillOthers.Value);
-            RefreshTargetServerRpc();
         }
 
         [ClientRpc]
