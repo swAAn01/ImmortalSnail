@@ -26,23 +26,19 @@
         <HintPath>..\..\..\..\..\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\DevProfile\BepInEx\core\0Harmony.dll</HintPath>
       </Reference>
       <Reference Include="Assembly-CSharp">
-        <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Assembly-CSharp.dll</HintPath>
+        <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Assembly-CSharp.dll</HintPath>
       </Reference>
       <Reference Include="BepInEx">
         <HintPath>..\..\..\..\..\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\DevProfile\BepInEx\core\BepInEx.dll</HintPath>
       </Reference>
       <Reference Include="LethalConfig">
-        <HintPath>..\..\..\..\..\..\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\DevProfile\BepInEx\plugins\AinaVT-LethalConfig\LethalConfig\LethalConfig.dll</HintPath>
+        <HintPath>..\..\..\..\..\..\..\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\DevProfile\BepInEx\plugins\AinaVT-LethalConfig\LethalConfig\LethalConfig.dll</HintPath>
       </Reference>
       <Reference Include="LethalLib">
-        <HintPath>..\..\..\..\..\..\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\DevProfile\BepInEx\plugins\Evaisa-LethalLib\LethalLib\LethalLib.dll</HintPath>
+        <HintPath>..\..\..\..\..\..\..\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\DevProfile\BepInEx\plugins\Evaisa-LethalLib\LethalLib\LethalLib.dll</HintPath>
       </Reference>
       <Reference Include="Unity.Netcode.Runtime">
-        <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Unity.Netcode.Runtime.dll</HintPath>
+        <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Unity.Netcode.Runtime.dll</HintPath>
       </Reference>
     </ItemGroup>
-
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-      <Exec Command="cd &quot;C:\Users\jaesw\OneDrive\Desktop\Lethal Company Mods\ImmortalSnail\Plugin\ImmortalSnail\bin\Debug\netstandard2.1&quot;&#xD;&#xA;netcode-patch ImmortalSnail.dll &quot;C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed&quot;&#xD;&#xA;copy ImmortalSnail.dll &quot;C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\plugins\AmesBoys-ImmortalSnail&quot; /Y&#xD;&#xA;copy ImmortalSnail.dll &quot;C:\Users\jaesw\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\DevProfile\BepInEx\plugins\AmesBoys-ImmortalSnail&quot; /Y" />
-    </Target>
 </Project>
